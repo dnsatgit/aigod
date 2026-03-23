@@ -49,6 +49,17 @@ fi
 # Create domain docs directory if it doesn't exist
 mkdir -p docs/domain
 
+# Install pre-commit eval hook (optional)
+echo ""
+read -p "Install pre-commit eval hook? (blocks commits on eval failure) [y/N] " INSTALL_HOOK
+if [ "$INSTALL_HOOK" = "y" ] || [ "$INSTALL_HOOK" = "Y" ]; then
+    cp scripts/pre-commit-eval.sh .git/hooks/pre-commit
+    chmod +x .git/hooks/pre-commit
+    echo "  Pre-commit eval hook installed."
+else
+    echo "  Skipped. You can install later: cp scripts/pre-commit-eval.sh .git/hooks/pre-commit"
+fi
+
 echo ""
 echo "================================"
 echo "  Setup complete!"
@@ -56,7 +67,7 @@ echo "================================"
 echo ""
 echo "Next steps:"
 echo "  1. Add your domain specs to docs/domain/"
-echo "  2. Configure roles in roles/index.yaml"
+echo "  2. Configure roles in roles/index.yaml + context/index.json"
 echo "  3. Customize evals in evals/assertions/domain.yaml"
 echo "  4. Seed memory in memory/"
 echo "  5. See CUSTOMIZE.md for the full guide"

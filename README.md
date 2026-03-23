@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  <strong>A cloneable master agent framework that turns Claude Code into your entire operations team.</strong><br>
-  <sub>120+ specialist roles. Eval-gated quality. Persistent memory. Zero standups.</sub>
+  <strong>A cloneable prompt engineering framework for Claude Code.</strong><br>
+  <sub>Role templates. Eval gating via promptfoo. Structured context management. Persistent file-based memory.</sub>
 </p>
 
 ---
@@ -26,19 +26,19 @@ You've been copy-pasting system prompts. Writing the same instructions. Getting 
 
 ## The Solution
 
-aigod is an **opinionated orchestrator framework** that lives in your git repo. You clone it, feed it your domain specs, and it becomes a persistent, context-aware master agent that:
+aigod is a **structured prompt engineering framework** for Claude Code. It lives in your git repo as a set of markdown files, JSON configs, and eval templates that give Claude Code consistent behavior, domain awareness, and quality standards.
 
-- **Routes tasks** to the right specialist from 120+ pre-built roles
-- **Evaluates every output** through a two-tier quality gate before you see it
-- **Remembers everything** across sessions — your preferences, past decisions, project context
-- **Enforces standards** automatically (try shipping glassmorphism past the frontend constraint layer)
-- **Learns from corrections** so you never repeat the same feedback twice
+- **Routes tasks** to specialist role definitions via keyword matching in `context/index.json`
+- **Evaluates outputs** through promptfoo (deterministic checks + Haiku-graded rubrics)
+- **Remembers context** across sessions via file-based memory with structured frontmatter
+- **Enforces standards** through constraint skill files (e.g., 21 frontend design rules)
+- **Learns from corrections** by saving feedback as protocol files that persist across sessions
 
 ```
-Your Domain Specs + aigod = Production-Ready Master Agent
+Your Domain Specs + aigod Framework Files = Consistent, Context-Aware Claude Code Sessions
 ```
 
-> **Why "aigod"?** Because naming things is hard, and we figured if it's going to orchestrate 120+ specialists, manage persistent memory, enforce quality standards, and learn from its mistakes — it might as well have a name that matches the ambition.
+> **Important: What this IS and ISN'T.** aigod is not a software platform or an orchestration engine with code. It's a set of structured prompt files, role templates, and eval configs that leverage Claude Code's native capabilities (CLAUDE.md, skills, file reading). Claude Code is the engine — aigod is the playbook. Think Terraform for AI behavior: declarative config files, not application code.
 
 ---
 
@@ -59,16 +59,14 @@ Your Domain Specs + aigod = Production-Ready Master Agent
 
 | Capability | Claude Code (vanilla) | Claude Code + aigod |
 |------------|----------------------|---------------------|
-| Context management | Loads everything, hopes it fits | Three-tier loading (L0→L1→L2) — only pay for context you need |
-| Task routing | Generic assistant for everything | 120+ specialist roles auto-selected per task |
-| Quality control | Trust and hope | Two-tier eval gate (deterministic + LLM-graded) on every output |
-| Session memory | Starts fresh each time | Persistent memory across all sessions |
-| Domain knowledge | You re-explain every time | Loaded automatically from your specs |
-| Session longevity | Context bloats, quality degrades | Auto-compression keeps sessions lean and focused |
-| Frontend standards | "Here's some Tailwind" | 21 enforced design standards, auto-fail on AI slop |
-| Error handling | Output whatever, you'll figure it out | Retry with feedback (max 3), then escalate |
-| Learning | Doesn't | Saves corrections as protocols, never repeats mistakes |
-| Cost awareness | Full-price model for everything | Haiku grader for evals (~$0.001/check), tiered context loading |
+| Context management | No structure — loads what you tell it | JSON index with tiered loading instructions (L0→L1→L2) |
+| Task routing | Generic assistant for everything | Role definitions selected by keyword matching |
+| Quality control | No eval pipeline | promptfoo integration — deterministic checks + Haiku-graded rubrics |
+| Session memory | Starts fresh (unless you use CLAUDE.md) | Structured file-based memory with types, tags, and frontmatter |
+| Domain knowledge | You re-explain each session | Loaded from `docs/domain/` specs via CLAUDE.md instructions |
+| Frontend standards | No enforcement | 21 design rules in constraint skill file (agent follows, not auto-enforced) |
+| Learning | Manual | Corrections saved as protocol files, loaded in future sessions |
+| Cost awareness | Full-price model for everything | Haiku as eval grader (~$0.001/check), context loading guidelines |
 
 ---
 
@@ -87,7 +85,7 @@ flowchart TB
     end
 
     subgraph EXECUTION["Execution Layer"]
-        ROLE[Specialist Role<br/>120+ available]
+        ROLE[Specialist Role<br/>from roles/]
         SKILL1[Excalidraw<br/>Diagrams]
         SKILL2[MiroFish<br/>Simulation]
         CONSTRAINT[Impeccable<br/>Frontend Standards]
@@ -163,7 +161,7 @@ aigod is built on the best open-source tools available — not reinventing wheel
 | **Eval Layer** | [promptfoo](https://github.com/promptfoo/promptfoo) | Industry-standard prompt evaluation. Two-tier gating: deterministic checks (free) + LLM-graded rubrics via Haiku ($0.001/eval). Every output quality-checked before delivery. |
 | **Simulation Skill** | [MiroFish](https://github.com/666ghj/MiroFish) | Multi-agent prediction framework for strategic foresight. When you need "what if" analysis, scenario modeling, or data-driven forecasting — not guessing. |
 | **Frontend Standards** | [Impeccable](https://github.com/pbakaus/impeccable) | 21 enforceable frontend design skills. OKLCH color, 4pt spacing, modular type scales, WCAG AA, and an "AI Slop Test" that auto-fails generic-looking output. |
-| **Role Catalog** | [agency-agents](https://github.com/msitarzewski/agency-agents) | 120+ battle-tested specialist role definitions across 12 divisions. Structured personas, not generic prompts. |
+| **Role Catalog** | [agency-agents](https://github.com/msitarzewski/agency-agents) | Reference library of 120+ role definitions across 12 divisions. aigod ships with 1 example + template — clone the full catalog from agency-agents or write your own. |
 | **Orchestration** | [Claude Code](https://claude.ai/code) | Native integration. CLAUDE.md as orchestrator definition, skills system, persistent memory, session protocols. |
 
 ---
@@ -238,21 +236,20 @@ A single structured JSON file that replaces markdown indexes, YAML configs, and 
 | **L1 — Summary** | File frontmatter, section headers, metadata | When domain is classified | ~500-1000 tokens |
 | **L2 — Full** | Complete file contents | Only when actively working on that item | Full file size |
 
-**How This Saves Credits:**
+**How It Works:**
 
 ```
-Without tiered loading:
-  Session start → load ALL memories + ALL roles + tracker + protocols
-  = 50,000+ tokens consumed before any work begins
-
-With JSON index:
-  Session start → load context/index.json (L0, ~300 tokens)
-  → classify task → match keywords → load ONE role (L2) + relevant memories (L2)
-  = ~3,000 tokens total, loaded incrementally
+Session start → read context/index.json (~300 tokens)
+  → CLAUDE.md instructs Claude to classify task
+  → match keywords in index → identify division + role
+  → load ONE role .md file + relevant memory files only
+  → execute with targeted context, not everything
 ```
+
+Note: This is instruction-driven — CLAUDE.md tells Claude how to load context. Claude Code follows these instructions but there's no enforcement engine. The structure makes it easy to follow; discipline depends on prompt quality.
 
 **Session Compression:**
-As conversations grow, the system automatically:
+CLAUDE.md instructs the agent to compress context as conversations grow:
 1. Summarizes completed work (replace verbose tool outputs with structured summaries)
 2. Archives resolved decisions (move to tracker log, release from active context)
 3. Extracts persistent learnings (save to memory files, update `index.json`, remove from conversation)
@@ -289,26 +286,27 @@ Defined in `CLAUDE.md`, the orchestrator:
 </details>
 
 <details>
-<summary><strong>Layer 2: Roles</strong> — 120+ specialists across 12 divisions</summary>
+<summary><strong>Layer 2: Roles</strong> — Specialist personas across 12 divisions</summary>
 
 <br>
 
-| Division | Count | Examples |
-|----------|-------|---------|
-| Engineering | 23 | Software Architect, Senior Dev, AI Engineer, DevOps, SRE |
-| Design | 8 | UI Designer, UX Researcher, Brand Guardian |
-| Marketing | 28+ | Growth Hacker, SEO Strategist, Content Creator |
-| Sales | 8 | Outbound Strategist, Deal Closer, Sales Engineer |
-| Product | 5 | Sprint Prioritizer, Feedback Synthesizer, PM |
-| Project Management | 6 | Studio Producer, Project Shepherd, Jira Steward |
-| Testing | 8 | Evidence Collector, Reality Checker, API Tester |
-| Support | 6 | Analytics Reporter, Finance Tracker, Legal Compliance |
-| Spatial Computing | 6 | XR Architect, visionOS Engineer |
-| Specialized | 27 | MCP Builder, Document Generator, Workflow Architect |
-| Game Dev | Varies | Engine Specialists, Level Design, Game AI |
-| Paid Media | 7 | PPC, Programmatic, Paid Social |
+**You don't need pre-built roles for every task.** When the problem statement is clear, CLAUDE.md instructs the agent to assume the necessary specialist behavior dynamically — no role file needed. Role files are for when you want **specific, repeatable, codified behavior** that you've tuned for your domain.
 
-Each role is a standalone `.md` file with structured sections:
+aigod ships with 1 example role (`software-architect.md`) and a `TEMPLATE.md` for creating your own. For a full library of pre-written roles, see [agency-agents](https://github.com/msitarzewski/agency-agents) (120+ across all divisions). Clone what you need into `roles/`, or write your own.
+
+| Division | Slots | Example Roles |
+|----------|-------|---------------|
+| Engineering | `roles/engineering/` | Software Architect, Senior Dev, AI Engineer, DevOps |
+| Design | `roles/design/` | UI Designer, UX Researcher, Brand Guardian |
+| Marketing | `roles/marketing/` | Growth Hacker, SEO Strategist, Content Creator |
+| Sales | `roles/sales/` | Outbound Strategist, Deal Closer |
+| Product | `roles/product/` | Sprint Prioritizer, Product Manager |
+| Project Mgmt | `roles/project-management/` | Project Shepherd, Jira Steward |
+| Testing | `roles/testing/` | Evidence Collector, API Tester |
+| Support | `roles/support/` | Analytics Reporter, Legal Compliance |
+| Specialized | `roles/specialized/` | MCP Builder, Workflow Architect |
+
+Each role is a standalone `.md` file following a structured template:
 
 ```yaml
 ---
@@ -319,9 +317,9 @@ vibe: Thinks in systems, decides in trade-offs
 ---
 ```
 
-**Identity → Core Mission → Critical Rules → Workflow → Decision Logic → Communication Style → Success Metrics**
+**Sections:** Identity → Core Mission → Critical Rules → Workflow → Decision Logic → Communication Style → Success Metrics
 
-The orchestrator loads **only the matched role** into context — never all 120+.
+The CLAUDE.md orchestrator instructs Claude to load **only the matched role file** — not all roles at once.
 
 </details>
 
@@ -338,7 +336,7 @@ Roles define *how* the agent behaves. Skills define *what* it can do.
 | **mirofish** | "predict", "simulate", "scenario", "what if" | Multi-agent simulation for strategic foresight and data-driven predictions |
 | **impeccable** | Automatic for all frontend output | Constraint layer enforcing 21 frontend design standards (not optional) |
 
-A Software Architect role might invoke the excalidraw skill to diagram its output. A Product Manager might invoke mirofish to simulate market scenarios. Any role touching frontend triggers impeccable automatically.
+A Software Architect role might invoke the excalidraw skill to diagram its output. A Product Manager might invoke mirofish to simulate market scenarios. CLAUDE.md instructs the agent to load impeccable constraints for any frontend task.
 
 **Adding custom skills:**
 ```
@@ -350,7 +348,7 @@ A Software Architect role might invoke the excalidraw skill to diagram its outpu
 </details>
 
 <details>
-<summary><strong>Layer 4: Eval Gate</strong> — Quality control on every output</summary>
+<summary><strong>Layer 4: Eval Gate</strong> — Quality control via promptfoo</summary>
 
 <br>
 
@@ -693,11 +691,13 @@ aigod is designed to minimize credit burn at every layer:
 
 ### Context Loading (OpenViking tiered strategy)
 
-| Strategy | Tokens Loaded | Savings |
-|----------|--------------|---------|
-| Naive: load all memories + all roles | ~50,000+ tokens/session | — |
-| aigod: L0 index → L1 scan → L2 targeted | ~3,000 tokens/session | **~94% reduction** |
-| Session compression (long conversations) | Ongoing reduction | Keeps context lean over time |
+The JSON index approach instructs Claude to load context incrementally rather than all at once. Actual savings depend on your repo size and number of memory/role files — more files = more savings from selective loading.
+
+| Strategy | What Happens |
+|----------|-------------|
+| No structure | Claude reads whatever you point it to, or everything in CLAUDE.md |
+| aigod tiered loading | Reads `context/index.json` first (~300 tokens), then loads only matched role + relevant memories |
+| Session compression | CLAUDE.md instructs Claude to summarize completed work and release dead context |
 
 ### Eval Layer
 
@@ -709,9 +709,9 @@ aigod is designed to minimize credit burn at every layer:
 
 The grader doesn't need to be smart — it just evaluates against a rubric. Haiku handles this at 1/60th the cost of Opus.
 
-### The Compound Effect
+### Note on Cost Claims
 
-Tiered context loading + cheap eval grading + session compression + persistent memory (no re-explanation) = **significantly lower per-session cost** while maintaining higher output quality. The framework pays for itself by not wasting tokens on context you don't need.
+These are architectural patterns, not benchmarked guarantees. Actual savings depend on your usage patterns, number of files, and session length. The principle is sound — loading less context = fewer tokens = lower cost — but we haven't published formal benchmarks yet. If you measure your own before/after, we'd love a PR with real numbers.
 
 ---
 
