@@ -390,33 +390,95 @@ Based on [Impeccable](https://github.com/pbakaus/impeccable) — 21 enforceable 
 
 ## Quick Start
 
+Pick the setup that fits how you work:
+
 ### Prerequisites
 
-- [Claude Code](https://claude.ai/code) (CLI)
-- Node.js 18+
+- [Claude Code](https://claude.ai/code) (CLI) — for Option A and B
+- [Claude Pro/Team](https://claude.ai) — for Option C (Projects)
+- Node.js 18+ (for promptfoo evals)
 - Git
 
-### 1. Clone
+---
+
+### Option A: Local Repo + Cloud Backup (Recommended)
+
+Your own personal agent repo, backed up to GitHub/GitLab for sync across machines.
 
 ```bash
+# 1. Clone to your local workspace
 git clone https://github.com/dnsatgit/aigod.git my-agent
 cd my-agent
-```
 
-### 2. Install
+# 2. Make it YOUR repo (disconnect from aigod upstream)
+rm -rf .git
+git init
+git add -A
+git commit -m "Initialize my agent from aigod framework"
 
-```bash
+# 3. Push to your own private repo for cloud backup
+git remote add origin https://github.com/YOUR_USERNAME/my-agent.git
+git push -u origin main
+
+# 4. Install eval dependencies
 npm install
+
+# 5. Customize (see table below), then run
+claude
 ```
 
-### 3. Customize
+Your agent now lives in a private repo. Push regularly — your memory, protocols, and tracker are version-controlled. Roll back mistakes. Sync across devices. Your agent's brain is backed up.
+
+---
+
+### Option B: Claude Code Session (Quick & Direct)
+
+Open any existing project folder with Claude Code and point it at aigod.
 
 ```bash
-# Read the full customization guide
-cat CUSTOMIZE.md
+# 1. Clone aigod INTO your existing project as a subfolder
+cd /path/to/your/project
+git clone https://github.com/dnsatgit/aigod.git .aigod
+
+# 2. Copy the orchestrator into your project root
+cp .aigod/CLAUDE.md ./CLAUDE.md
+
+# 3. Symlink or copy the framework pieces you need
+cp -r .aigod/roles ./roles
+cp -r .aigod/evals ./evals
+cp -r .aigod/memory ./memory
+cp -r .aigod/tracker ./tracker
+cp -r .aigod/.claude ./.claude
+
+# 4. Install eval dependencies
+npm install --prefix .aigod
+
+# 5. Customize, then open with Claude Code
+claude
 ```
 
-**The short version:**
+Claude Code reads `CLAUDE.md` from the project root automatically. Your agent lives alongside your code — context about your actual codebase is immediate.
+
+---
+
+### Option C: Claude Projects (Web UI)
+
+Use aigod as the system prompt and knowledge base for a Claude Project on claude.ai.
+
+1. **Create a new Project** at [claude.ai](https://claude.ai)
+2. **Set the Project Instructions** — paste the contents of `CLAUDE.md` into the project's custom instructions
+3. **Upload knowledge files:**
+   - `roles/index.yaml` — so the agent knows what roles are available
+   - Any specific role `.md` files you want active
+   - `memory/protocols.md` — your established rules
+   - `docs/domain/` contents — your domain specs
+4. **Seed the conversation** — tell the agent who you are, what you're working on, and your preferences. It will save these as memory for the project.
+
+> **Note:** Claude Projects doesn't have file system access, so evals (promptfoo), skills (excalidraw), and the tracker won't run automatically. You get the orchestrator brain, role routing, and memory — but without the automation layer. For the full experience, use Option A or B.
+
+---
+
+### After Setup: Customize
 
 | Step | What | Where |
 |------|------|-------|
@@ -426,13 +488,26 @@ cat CUSTOMIZE.md
 | Seed memory | Who you are, project context, preferences | `memory/` |
 | Add skills | Domain-specific capabilities (optional) | `.claude/skills/` |
 
-### 4. Run
+See [CUSTOMIZE.md](CUSTOMIZE.md) for the full walkthrough.
+
+### Verify It Works
 
 ```bash
+# Open with Claude Code
 claude
+
+# The agent should:
+# 1. Read memory/MEMORY.md (L0 context index)
+# 2. Read tracker/tracker.md (project state)
+# 3. Greet you with current status
+# 4. Ask what you're working on (if first session)
 ```
 
-The orchestrator boots, reads memory, checks the tracker, and is ready.
+```bash
+# Run evals manually (Option A/B only)
+npm run eval
+npm run eval:view
+```
 
 ---
 
