@@ -59,14 +59,16 @@ Your Domain Specs + aigod = Production-Ready Master Agent
 
 | Capability | Claude Code (vanilla) | Claude Code + aigod |
 |------------|----------------------|---------------------|
+| Context management | Loads everything, hopes it fits | Three-tier loading (L0→L1→L2) — only pay for context you need |
 | Task routing | Generic assistant for everything | 120+ specialist roles auto-selected per task |
 | Quality control | Trust and hope | Two-tier eval gate (deterministic + LLM-graded) on every output |
 | Session memory | Starts fresh each time | Persistent memory across all sessions |
 | Domain knowledge | You re-explain every time | Loaded automatically from your specs |
+| Session longevity | Context bloats, quality degrades | Auto-compression keeps sessions lean and focused |
 | Frontend standards | "Here's some Tailwind" | 21 enforced design standards, auto-fail on AI slop |
 | Error handling | Output whatever, you'll figure it out | Retry with feedback (max 3), then escalate |
 | Learning | Doesn't | Saves corrections as protocols, never repeats mistakes |
-| Cost awareness | Full-price model for everything | Haiku grader for evals (~$0.001/check) |
+| Cost awareness | Full-price model for everything | Haiku grader for evals (~$0.001/check), tiered context loading |
 
 ---
 
@@ -157,6 +159,7 @@ aigod is built on the best open-source tools available — not reinventing wheel
 
 | Component | Powered By | Why This |
 |-----------|-----------|----------|
+| **Context Management** | [OpenViking](https://github.com/volcengine/OpenViking) | File-system paradigm for context. Three-tier loading (L0 index → L1 summary → L2 full) means you only pay for context you actually need. Sessions stay lean, credits stay low. |
 | **Eval Layer** | [promptfoo](https://github.com/promptfoo/promptfoo) | Industry-standard prompt evaluation. Two-tier gating: deterministic checks (free) + LLM-graded rubrics via Haiku ($0.001/eval). Every output quality-checked before delivery. |
 | **Simulation Skill** | [MiroFish](https://github.com/666ghj/MiroFish) | Multi-agent prediction framework for strategic foresight. When you need "what if" analysis, scenario modeling, or data-driven forecasting — not guessing. |
 | **Frontend Standards** | [Impeccable](https://github.com/pbakaus/impeccable) | 21 enforceable frontend design skills. OKLCH color, 4pt spacing, modular type scales, WCAG AA, and an "AI Slop Test" that auto-fails generic-looking output. |
@@ -166,6 +169,52 @@ aigod is built on the best open-source tools available — not reinventing wheel
 ---
 
 ## Core Layers
+
+<details>
+<summary><strong>Layer 0: Context Management</strong> — The foundation that keeps everything efficient (OpenViking)</summary>
+
+<br>
+
+Based on [OpenViking](https://github.com/volcengine/OpenViking) — a context database designed specifically for AI agents. Instead of dumping everything into context and hoping for the best, aigod uses a **three-tier loading strategy** that treats context like a file system.
+
+**The Problem It Solves:**
+- Sessions bloat with irrelevant context → slower responses, higher costs
+- Memory scattered across files with no retrieval strategy → agent loads everything or nothing
+- Long conversations lose early context → quality degrades over time
+- No visibility into what context informed a decision → debugging is guesswork
+
+**Three-Tier Context Loading (L0/L1/L2):**
+
+| Tier | What Loads | When | Token Cost |
+|------|-----------|------|------------|
+| **L0 — Index** | File names, descriptions, routing keywords | Every session start | ~200 tokens |
+| **L1 — Summary** | Section headers, key decisions, metadata/frontmatter | When domain is classified | ~500-1000 tokens |
+| **L2 — Full** | Complete file contents, detailed specs | Only when actively needed | Full file size |
+
+**How This Saves Credits:**
+
+```
+Without tiered loading:
+  Session start → load ALL memories + ALL roles + tracker + protocols
+  = 50,000+ tokens consumed before any work begins
+
+With tiered loading:
+  Session start → load MEMORY.md index (L0) + tracker summary (L1)
+  = ~500 tokens → classify task → load ONE role (L2) + relevant memories (L2)
+  = ~3,000 tokens total, loaded incrementally
+```
+
+**Session Compression:**
+As conversations grow, the system automatically:
+1. Summarizes completed work (replace verbose tool outputs with structured summaries)
+2. Archives resolved decisions (move to tracker log, release from active context)
+3. Extracts persistent learnings (save to memory files, remove from conversation)
+4. References instead of repeating (point to files/commits, don't re-quote them)
+
+**Observable Context:**
+Every decision cites what context informed it. If a memory or protocol influenced the approach, it's transparent — no black-box retrieval.
+
+</details>
 
 <details>
 <summary><strong>Layer 1: Orchestrator</strong> — The brain that routes everything</summary>
@@ -508,7 +557,19 @@ flowchart LR
 
 ---
 
-## Eval Cost Breakdown
+## Cost Efficiency
+
+aigod is designed to minimize credit burn at every layer:
+
+### Context Loading (OpenViking tiered strategy)
+
+| Strategy | Tokens Loaded | Savings |
+|----------|--------------|---------|
+| Naive: load all memories + all roles | ~50,000+ tokens/session | — |
+| aigod: L0 index → L1 scan → L2 targeted | ~3,000 tokens/session | **~94% reduction** |
+| Session compression (long conversations) | Ongoing reduction | Keeps context lean over time |
+
+### Eval Layer
 
 | What | Model | Cost | When |
 |------|-------|------|------|
@@ -517,6 +578,10 @@ flowchart LR
 | Your main agent | claude-sonnet/opus | Your plan | Task execution |
 
 The grader doesn't need to be smart — it just evaluates against a rubric. Haiku handles this at 1/60th the cost of Opus.
+
+### The Compound Effect
+
+Tiered context loading + cheap eval grading + session compression + persistent memory (no re-explanation) = **significantly lower per-session cost** while maintaining higher output quality. The framework pays for itself by not wasting tokens on context you don't need.
 
 ---
 

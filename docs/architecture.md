@@ -10,6 +10,8 @@ aigod is a master orchestrator framework that runs inside Claude Code. It uses a
 ┌─────────────────────────────────┐
 │  User Interface (Claude Code)   │  ← User interacts here
 ├─────────────────────────────────┤
+│  Context Manager (OpenViking)   │  ← L0/L1/L2 tiered loading + session compression
+├─────────────────────────────────┤
 │  Orchestrator (CLAUDE.md)       │  ← Task classification + routing
 ├─────────────────────────────────┤
 │  Roles (roles/)                 │  ← Specialist personas
@@ -47,6 +49,19 @@ aigod is a master orchestrator framework that runs inside Claude Code. It uses a
 | **Role** | A persona (how the agent behaves) | On task classification | Per-task |
 | **Skill** | A capability (what the agent can do) | On trigger keyword match | Stateless |
 | **Constraint** | A mandatory standard | Auto for matching domains | Always active |
+
+### Context Management: OpenViking Tiered Loading
+
+**Why tiered loading?** Context is not free. Every token loaded into the context window costs money and competes for attention. Loading 50,000 tokens of "just in case" context at session start is wasteful when you typically need ~3,000.
+
+**The three tiers:**
+- **L0 (Index)**: File names, descriptions, routing keywords. ~200 tokens. Always loaded.
+- **L1 (Summary)**: Frontmatter, section headers, key decisions. ~500-1000 tokens. Loaded on classification.
+- **L2 (Full)**: Complete file contents. Variable. Loaded only when actively working on that item.
+
+**Why session compression?** Long conversations accumulate dead context — resolved decisions, verbose tool outputs, completed sub-tasks. Compression extracts what matters (learnings → memory, decisions → tracker) and releases the rest, keeping the session performant.
+
+**Why observable context?** If the agent makes a bad decision because it loaded the wrong context, you need to know. Every decision cites what informed it.
 
 ### Eval Strategy: Two Tiers
 
