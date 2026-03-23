@@ -1,182 +1,209 @@
-# aigod
+<p align="center">
+  <img src="assets/banner.png" alt="aigod banner" width="100%">
+</p>
 
-A generic, cloneable master agent framework. Feed it your domain specs — get a fully orchestrated AI agent system with dynamic sub-agents, skills, eval-gated quality, and persistent memory.
+<p align="center">
+  <a href="#-quick-start"><img src="https://img.shields.io/badge/Get_Started-blue?style=for-the-badge" alt="Get Started"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License"></a>
+  <a href="#-architecture"><img src="https://img.shields.io/badge/Claude_Code-Native-blueviolet?style=for-the-badge" alt="Claude Code"></a>
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-Welcome-orange?style=for-the-badge" alt="PRs Welcome"></a>
+</p>
 
-Clone it. Customize it. Ship it.
+<p align="center">
+  <strong>A cloneable master agent framework that turns Claude Code into your entire operations team.</strong><br>
+  <sub>120+ specialist roles. Eval-gated quality. Persistent memory. Zero standups.</sub>
+</p>
 
 ---
 
-## What is aigod?
+## The Problem
 
-aigod is an **opinionated orchestrator framework** that lives in your git repo. It turns a single Claude Code agent into a full operations team by dynamically routing tasks to specialized sub-agents, invoking skills on demand, and quality-gating every output through an eval layer.
+You're using Claude Code. It's great. But every session starts from scratch. It doesn't remember your conventions, doesn't know your team structure, doesn't enforce your quality bar, and definitely doesn't know that "Karen from legal flagged the auth tokens again."
 
-**You provide:** Your company/project specs, domain knowledge, and preferences.
-**aigod provides:** The architecture, routing, evaluation, memory, and coordination.
+You've been copy-pasting system prompts. Writing the same instructions. Getting inconsistent output. Watching it suggest `Inter` font for the hundredth time.
+
+**aigod fixes this.**
+
+## The Solution
+
+aigod is an **opinionated orchestrator framework** that lives in your git repo. You clone it, feed it your domain specs, and it becomes a persistent, context-aware master agent that:
+
+- **Routes tasks** to the right specialist from 120+ pre-built roles
+- **Evaluates every output** through a two-tier quality gate before you see it
+- **Remembers everything** across sessions — your preferences, past decisions, project context
+- **Enforces standards** automatically (try shipping glassmorphism past the frontend constraint layer)
+- **Learns from corrections** so you never repeat the same feedback twice
 
 ```
-Your Domain Specs + aigod Framework = Production-Ready Master Agent
+Your Domain Specs + aigod = Production-Ready Master Agent
 ```
+
+> **Why "aigod"?** Because naming things is hard, and we figured if it's going to orchestrate 120+ specialists, manage persistent memory, enforce quality standards, and learn from its mistakes — it might as well have a name that matches the ambition.
+
+---
+
+## When Should You Use aigod?
+
+| You should use aigod if... | You probably don't need aigod if... |
+|---------------------------|-------------------------------------|
+| You use Claude Code daily for real work | You're exploring Claude for the first time |
+| You're tired of re-explaining your codebase every session | Your projects are small one-off scripts |
+| Your team has conventions, standards, and processes | You don't care about output consistency |
+| You want quality gates on AI output before it ships | You enjoy reviewing AI slop manually |
+| You need different specialist behaviors for different tasks | One generic assistant is fine for everything |
+| You want the agent to learn and improve over time | You like copy-pasting system prompts |
+
+---
+
+## With aigod vs. Without
+
+| Capability | Claude Code (vanilla) | Claude Code + aigod |
+|------------|----------------------|---------------------|
+| Task routing | Generic assistant for everything | 120+ specialist roles auto-selected per task |
+| Quality control | Trust and hope | Two-tier eval gate (deterministic + LLM-graded) on every output |
+| Session memory | Starts fresh each time | Persistent memory across all sessions |
+| Domain knowledge | You re-explain every time | Loaded automatically from your specs |
+| Frontend standards | "Here's some Tailwind" | 21 enforced design standards, auto-fail on AI slop |
+| Error handling | Output whatever, you'll figure it out | Retry with feedback (max 3), then escalate |
+| Learning | Doesn't | Saves corrections as protocols, never repeats mistakes |
+| Cost awareness | Full-price model for everything | Haiku grader for evals (~$0.001/check) |
 
 ---
 
 ## Architecture
 
+```mermaid
+flowchart TB
+    subgraph INPUT["Task Input"]
+        USER[User Task]
+    end
+
+    subgraph ORCHESTRATOR["Master Orchestrator"]
+        CLASSIFY[Classify Domain]
+        ROUTE[Route to Role]
+        LOAD[Load Skills + Constraints]
+    end
+
+    subgraph EXECUTION["Execution Layer"]
+        ROLE[Specialist Role<br/>120+ available]
+        SKILL1[Excalidraw<br/>Diagrams]
+        SKILL2[MiroFish<br/>Simulation]
+        CONSTRAINT[Impeccable<br/>Frontend Standards]
+    end
+
+    subgraph EVAL["Eval Layer — promptfoo"]
+        T1[Tier 1: Deterministic<br/>FREE]
+        T2[Tier 2: LLM-Graded<br/>Haiku ~$0.001]
+    end
+
+    subgraph STATE["Persistence"]
+        MEMORY[Memory<br/>Cross-session]
+        TRACKER[Tracker<br/>Project State]
+        PROTOCOL[Protocols<br/>Learned Rules]
+    end
+
+    USER --> CLASSIFY
+    CLASSIFY --> ROUTE
+    ROUTE --> LOAD
+    LOAD --> ROLE
+    ROLE -.-> SKILL1
+    ROLE -.-> SKILL2
+    ROLE -.-> CONSTRAINT
+    ROLE --> T1
+    T1 --> T2
+    T2 -->|PASS| OUTPUT[Deliver to User]
+    T2 -->|FAIL| RETRY[Retry with Feedback<br/>max 3]
+    RETRY --> ROLE
+    OUTPUT --> MEMORY
+    OUTPUT --> TRACKER
+    RETRY -->|3 failures| ESCALATE[Escalate to User]
+
+    style INPUT fill:#161b22,stroke:#58a6ff,color:#c9d1d9
+    style ORCHESTRATOR fill:#161b22,stroke:#58a6ff,color:#c9d1d9
+    style EXECUTION fill:#161b22,stroke:#bc8cff,color:#c9d1d9
+    style EVAL fill:#161b22,stroke:#f78166,color:#c9d1d9
+    style STATE fill:#161b22,stroke:#3fb950,color:#c9d1d9
 ```
-User Task
-    │
-    ▼
-┌─────────────────────────────────────────────────────────┐
-│  MASTER ORCHESTRATOR                                    │
-│                                                         │
-│  1. Classify task domain                                │
-│  2. Select role from catalog (120+ available)           │
-│  3. Load relevant skills (diagram, simulate, etc.)      │
-│  4. Apply constraint layers (frontend, security, etc.)  │
-│                                                         │
-│  ┌───────────────────────────────────────────┐          │
-│  │  Sub-Agent executes (role + skills)       │          │
-│  └──────────────┬────────────────────────────┘          │
-│                 │                                        │
-│  ┌──────────────▼────────────────────────────┐          │
-│  │  Eval Layer (promptfoo)                   │          │
-│  │  ├── Deterministic checks (free)          │          │
-│  │  └── LLM-graded rubrics (haiku, cheap)    │          │
-│  └──────────────┬────────────────────────────┘          │
-│                 │                                        │
-│         PASS? ──┤── FAIL → retry (max 3) → escalate    │
-│                 │                                        │
-│  5. Log decision + update tracker                       │
-│  6. Deliver output                                      │
-└─────────────────────────────────────────────────────────┘
-```
+
+---
+
+## See It In Action
+
+Here's what happens when you say **"Build me a dashboard page for analytics"**:
+
+<p align="center">
+  <img src="assets/usecase.png" alt="aigod use case example" width="100%">
+</p>
+
+**What just happened:**
+
+1. **Classify** — Orchestrator detects engineering + design (frontend) task
+2. **Route** — Loads Senior Dev as primary role, UI Designer for review
+3. **Load Skills** — Excalidraw for architecture diagram, Impeccable as mandatory frontend constraint
+4. **Load Memory** — Recalls you prefer Recharts and the project uses Next.js 14 app router
+5. **Execute** — Agent generates code using YOUR stack, YOUR preferences, YOUR conventions
+6. **Eval Gate** — Deterministic checks (free) + Haiku-graded quality rubrics ($0.001) — all pass
+7. **Deliver** — Output lands in your hands, already validated
+8. **Remember** — Tracker updated, decisions logged, preferences reinforced for next session
+
+> Without aigod: "Here's a generic React dashboard with Chart.js and Inter font."
+> With aigod: "Here's a Next.js 14 app router page using Recharts, OKLCH colors, 4pt grid, and your existing layout components."
+
+---
+
+## What's Under the Hood
+
+aigod is built on the best open-source tools available — not reinventing wheels, but orchestrating them.
+
+| Component | Powered By | Why This |
+|-----------|-----------|----------|
+| **Eval Layer** | [promptfoo](https://github.com/promptfoo/promptfoo) | Industry-standard prompt evaluation. Two-tier gating: deterministic checks (free) + LLM-graded rubrics via Haiku ($0.001/eval). Every output quality-checked before delivery. |
+| **Simulation Skill** | [MiroFish](https://github.com/666ghj/MiroFish) | Multi-agent prediction framework for strategic foresight. When you need "what if" analysis, scenario modeling, or data-driven forecasting — not guessing. |
+| **Frontend Standards** | [Impeccable](https://github.com/pbakaus/impeccable) | 21 enforceable frontend design skills. OKLCH color, 4pt spacing, modular type scales, WCAG AA, and an "AI Slop Test" that auto-fails generic-looking output. |
+| **Role Catalog** | [agency-agents](https://github.com/msitarzewski/agency-agents) | 120+ battle-tested specialist role definitions across 12 divisions. Structured personas, not generic prompts. |
+| **Orchestration** | [Claude Code](https://claude.ai/code) | Native integration. CLAUDE.md as orchestrator definition, skills system, persistent memory, session protocols. |
 
 ---
 
 ## Core Layers
 
-| Layer | Purpose | Location |
-|-------|---------|----------|
-| **Orchestrator** | Task classification, routing, state management | `CLAUDE.md` |
-| **Roles** | 120+ specialist personas across 12 divisions | `roles/` |
-| **Skills** | Stateless capabilities invoked on demand | `.claude/skills/` |
-| **Evals** | Quality gates on every output (promptfoo + haiku) | `evals/` |
-| **Constraints** | Mandatory standards for specific domains (e.g., frontend) | `.claude/skills/impeccable/` |
-| **Memory** | Persistent cross-session knowledge | `memory/` |
-| **Tracker** | Single source of truth for project state | `tracker/` |
+<details>
+<summary><strong>Layer 1: Orchestrator</strong> — The brain that routes everything</summary>
 
----
+<br>
 
-## Quick Start
+Defined in `CLAUDE.md`, the orchestrator:
 
-### 1. Clone
+- Reads memory and tracker state on every session start
+- Classifies incoming tasks by domain using keyword routing
+- Selects the optimal specialist role from the catalog
+- Loads relevant skills and constraint layers
+- Manages retry logic (max 3 attempts) with eval feedback
+- Logs every decision with structured entries
+- Updates project state after every significant action
 
-```bash
-git clone https://github.com/YOUR_USERNAME/aigod.git
-cd aigod
+**Session start protocol:**
+```
+1. Read memory/MEMORY.md → load persistent context
+2. Read tracker/tracker.md → check project state
+3. Surface stuck/blocked items
+4. Greet with current status
 ```
 
-### 2. Install dependencies
+</details>
 
-```bash
-npm install
-```
+<details>
+<summary><strong>Layer 2: Roles</strong> — 120+ specialists across 12 divisions</summary>
 
-### 3. Customize for your domain
+<br>
 
-```bash
-# Follow the interactive customization guide
-cat CUSTOMIZE.md
-```
-
-Or manually:
-
-1. **Add your specs** — Drop your company/project documentation into `docs/domain/`
-2. **Configure roles** — Enable/disable roles in `roles/index.yaml` for your domain
-3. **Set eval criteria** — Edit `evals/promptfooconfig.yaml` with your quality standards
-4. **Seed memory** — Add initial context to `memory/` (who you are, project goals, preferences)
-
-### 4. Run
-
-Open the project in your editor with Claude Code, or:
-
-```bash
-claude
-```
-
-The orchestrator reads `CLAUDE.md` on startup, loads memory, checks the tracker, and is ready to work.
-
----
-
-## Directory Structure
-
-```
-aigod/
-├── CLAUDE.md                    # Master orchestrator definition
-├── CUSTOMIZE.md                 # Step-by-step domain customization guide
-├── package.json                 # Dependencies (promptfoo, etc.)
-├── .gitignore
-│
-├── .claude/
-│   ├── commands/                # Custom slash commands
-│   └── skills/
-│       ├── excalidraw/          # Diagramming skill
-│       │   ├── SKILL.md
-│       │   └── references/
-│       ├── mirofish/            # Predictive simulation skill
-│       │   └── SKILL.md
-│       └── impeccable/          # Frontend constraint layer
-│           ├── SKILL.md
-│           └── references/
-│
-├── roles/
-│   ├── index.yaml               # Role routing index
-│   ├── engineering/             # 23 engineering roles
-│   ├── design/                  # 8 design roles
-│   ├── marketing/               # 28+ marketing roles
-│   ├── sales/                   # 8 sales roles
-│   ├── product/                 # 5 product roles
-│   ├── project-management/      # 6 PM roles
-│   ├── testing/                 # 8 QA roles
-│   ├── support/                 # 6 support roles
-│   └── specialized/             # 27 specialized roles
-│
-├── evals/
-│   ├── promptfooconfig.yaml     # Global eval configuration
-│   ├── assertions/              # Reusable assertion sets
-│   │   ├── quality.yaml
-│   │   ├── safety.yaml
-│   │   └── domain.yaml
-│   └── datasets/                # Test datasets per role
-│
-├── memory/
-│   ├── MEMORY.md                # Memory index (always loaded)
-│   └── protocols.md             # Established rules + lessons
-│
-├── tracker/
-│   └── tracker.md               # Single source of truth for project state
-│
-├── docs/
-│   ├── architecture.md          # Detailed architecture documentation
-│   ├── domain/                  # YOUR domain specs go here
-│   └── examples/                # Example configurations
-│
-└── scripts/
-    └── setup.sh                 # Initial setup script
-```
-
----
-
-## Roles
-
-aigod ships with **120+ pre-built specialist roles** across 12 divisions:
-
-| Division | Roles | Examples |
+| Division | Count | Examples |
 |----------|-------|---------|
 | Engineering | 23 | Software Architect, Senior Dev, AI Engineer, DevOps, SRE |
 | Design | 8 | UI Designer, UX Researcher, Brand Guardian |
 | Marketing | 28+ | Growth Hacker, SEO Strategist, Content Creator |
 | Sales | 8 | Outbound Strategist, Deal Closer, Sales Engineer |
-| Product | 5 | Sprint Prioritizer, Feedback Synthesizer, Product Manager |
+| Product | 5 | Sprint Prioritizer, Feedback Synthesizer, PM |
 | Project Management | 6 | Studio Producer, Project Shepherd, Jira Steward |
 | Testing | 8 | Evidence Collector, Reality Checker, API Tester |
 | Support | 6 | Analytics Reporter, Finance Tracker, Legal Compliance |
@@ -185,133 +212,323 @@ aigod ships with **120+ pre-built specialist roles** across 12 divisions:
 | Game Dev | Varies | Engine Specialists, Level Design, Game AI |
 | Paid Media | 7 | PPC, Programmatic, Paid Social |
 
-Each role is a standalone `.md` file with: Identity, Core Mission, Critical Rules, Workflow, Decision Logic, Communication Style, and Success Metrics.
+Each role is a standalone `.md` file with structured sections:
 
-**You don't need all of them.** Enable only what your domain requires via `roles/index.yaml`.
-
+```yaml
 ---
+name: Software Architect
+description: Designs system architecture, evaluates trade-offs
+division: engineering
+vibe: Thinks in systems, decides in trade-offs
+---
+```
 
-## Skills
+**Identity → Core Mission → Critical Rules → Workflow → Decision Logic → Communication Style → Success Metrics**
 
-Skills are **stateless tools** the orchestrator invokes on demand. Unlike roles (which define *how* the agent behaves), skills define *what* it can do.
+The orchestrator loads **only the matched role** into context — never all 120+.
 
-| Skill | Triggers | Description |
+</details>
+
+<details>
+<summary><strong>Layer 3: Skills</strong> — Stateless capabilities invoked on demand</summary>
+
+<br>
+
+Roles define *how* the agent behaves. Skills define *what* it can do.
+
+| Skill | Triggers | What It Does |
 |-------|----------|-------------|
-| **excalidraw** | "visualize", "diagram", "architecture" | Generates Excalidraw JSON diagrams with render-validate loop |
+| **excalidraw** | "visualize", "diagram", "architecture" | Generates Excalidraw JSON diagrams with a render-validate loop |
 | **mirofish** | "predict", "simulate", "scenario", "what if" | Multi-agent simulation for strategic foresight and data-driven predictions |
-| **impeccable** | Any frontend output | Constraint layer enforcing 21 frontend design standards (not optional) |
+| **impeccable** | Automatic for all frontend output | Constraint layer enforcing 21 frontend design standards (not optional) |
 
-### Adding Custom Skills
+A Software Architect role might invoke the excalidraw skill to diagram its output. A Product Manager might invoke mirofish to simulate market scenarios. Any role touching frontend triggers impeccable automatically.
 
+**Adding custom skills:**
 ```
 .claude/skills/your-skill/
-├── SKILL.md          # Frontmatter + methodology
-└── references/       # Supporting assets
+├── SKILL.md          ← Frontmatter + methodology
+└── references/       ← Supporting assets
 ```
 
----
+</details>
 
-## Eval Layer
+<details>
+<summary><strong>Layer 4: Eval Gate</strong> — Quality control on every output</summary>
 
-Every output passes through a **two-tier evaluation gate** powered by [promptfoo](https://github.com/promptfoo/promptfoo):
+<br>
 
-### Tier 1 — Deterministic (free)
-- `contains` / `not-contains` — required/blocked phrases
-- `is-json` / `regex` — structural validation
-- `cost` / `latency` — budget and performance gates
+Powered by [promptfoo](https://github.com/promptfoo/promptfoo). Two tiers:
 
-### Tier 2 — LLM-Graded (cheap, ~$0.001/eval)
-- Uses `claude-haiku-4-5` as the grader (not the main model)
-- `llm-rubric` — custom quality criteria per role
-- `model-graded-closedqa` — factual accuracy checks
-- `similar` — semantic similarity scoring
-
-### Control Flow
-```
-Output → Eval → PASS → Deliver
-                FAIL → Retry with feedback (max 3) → Escalate to user
+**Tier 1 — Deterministic (free, always runs):**
+```yaml
+- type: not-contains        # No hallucinated URLs
+  value: "example.com"
+- type: javascript           # Output is not empty
+  value: "output.length > 0"
+- type: not-contains        # No leaked system prompts
+  value: "CLAUDE.md"
 ```
 
-### Composite Score
+**Tier 2 — LLM-Graded (~$0.001/eval via Haiku):**
+```yaml
+- type: llm-rubric
+  value: "The response provides specific, actionable guidance
+          rather than generic or vague advice."
+- type: llm-rubric
+  value: "The response addresses exactly what was asked —
+          no more, no less. No over-engineering."
+```
+
+**Composite scoring:**
 ```
 quality * 0.6 + relevance * 0.3 + cost_efficiency * 0.1
 ```
 
----
+**Control flow:** PASS → deliver | FAIL → retry with feedback (max 3) → escalate to user
 
-## Memory System
+Three assertion sets included: `quality.yaml`, `safety.yaml`, `domain.yaml` (customizable).
 
-aigod maintains persistent memory across sessions:
+</details>
+
+<details>
+<summary><strong>Layer 5: Memory</strong> — Persistent knowledge that survives sessions</summary>
+
+<br>
 
 | Type | Purpose | Example |
 |------|---------|---------|
-| **user** | Who you are, your preferences | "Senior engineer, prefers terse responses" |
-| **feedback** | Corrections and confirmed approaches | "Don't mock the database in integration tests" |
-| **project** | Ongoing work context | "Auth rewrite driven by compliance, not tech debt" |
-| **reference** | Pointers to external systems | "Bugs tracked in Linear project INGEST" |
+| **user** | Who you are, preferences, expertise | "Senior Go engineer, new to React, prefers terse responses" |
+| **feedback** | Corrections and confirmed approaches | "Don't mock the database — got burned last quarter" |
+| **project** | Ongoing work context and decisions | "Auth rewrite for SOC2 compliance, deadline April 15" |
+| **reference** | Pointers to external systems | "Bugs in Linear project PLATFORM, dashboards at grafana.internal" |
+| **protocols** | Evolved rules from past interactions | "Always confirm before touching infrastructure" |
 
-Memory is stored as individual `.md` files with structured frontmatter, indexed in `MEMORY.md`.
+Each memory is a `.md` file with structured frontmatter, indexed in `MEMORY.md` (always loaded, < 200 lines). The agent learns from corrections and **never repeats the same mistake twice**.
+
+</details>
+
+<details>
+<summary><strong>Layer 6: Frontend Constraints</strong> — The Impeccable standard</summary>
+
+<br>
+
+Based on [Impeccable](https://github.com/pbakaus/impeccable) — 21 enforceable frontend design skills. This is a **mandatory constraint**, not an optional skill. Any agent output touching HTML/CSS/JS passes through:
+
+```
+/audit → /normalize → /harden → /polish → /critique
+```
+
+**The 7 Standards:**
+
+| Standard | Key Rules |
+|----------|-----------|
+| Typography | No Inter/Roboto defaults, modular type scale, 16px min body |
+| Color | OKLCH color space, tinted neutrals, 60-30-10 ratio |
+| Spatial | 4pt base, `gap` over margin, container queries |
+| Motion | Meaningful only, `prefers-reduced-motion`, no bounce easing |
+| Interaction | 44px touch targets, visible focus indicators |
+| Responsive | Mobile-first, fluid `clamp()`, logical CSS properties, i18n budget |
+| Accessibility | WCAG AA minimum (4.5:1 body, 3:1 UI), semantic HTML |
+
+**Auto-fail triggers:** Glassmorphism, gradient text, nested cards, pure black on white, z-index > 100, `!important` without justification.
+
+**The AI Slop Test:** "Would someone guess AI generated this?" If yes → fail.
+
+</details>
 
 ---
 
-## Customization
+## Quick Start
 
-See [CUSTOMIZE.md](CUSTOMIZE.md) for the full guide. The short version:
-
-1. **Drop your specs** into `docs/domain/`
-2. **Pick your roles** — edit `roles/index.yaml`
-3. **Define your quality bar** — edit `evals/promptfooconfig.yaml`
-4. **Seed your memory** — add context files to `memory/`
-5. **Add domain skills** — create new skills in `.claude/skills/`
-
-aigod adapts to any domain: software teams, agencies, consulting firms, research labs, content studios, or solo operators.
-
----
-
-## Examples
-
-### Software Team
-```yaml
-# roles/index.yaml
-enabled_divisions:
-  - engineering
-  - testing
-  - product
-```
-
-### Marketing Agency
-```yaml
-# roles/index.yaml
-enabled_divisions:
-  - marketing
-  - design
-  - sales
-  - paid-media
-```
-
-### Solo Founder
-```yaml
-# roles/index.yaml
-enabled_roles:
-  - engineering/software-architect
-  - product/sprint-prioritizer
-  - marketing/growth-hacker
-  - design/ui-designer
-```
-
----
-
-## Requirements
+### Prerequisites
 
 - [Claude Code](https://claude.ai/code) (CLI)
-- Node.js 18+ (for promptfoo)
+- Node.js 18+
 - Git
+
+### 1. Clone
+
+```bash
+git clone https://github.com/dnsatgit/aigod.git my-agent
+cd my-agent
+```
+
+### 2. Install
+
+```bash
+npm install
+```
+
+### 3. Customize
+
+```bash
+# Read the full customization guide
+cat CUSTOMIZE.md
+```
+
+**The short version:**
+
+| Step | What | Where |
+|------|------|-------|
+| Add your specs | Company docs, conventions, architecture | `docs/domain/` |
+| Pick your roles | Enable relevant divisions | `roles/index.yaml` |
+| Set your quality bar | Domain-specific eval assertions | `evals/assertions/domain.yaml` |
+| Seed memory | Who you are, project context, preferences | `memory/` |
+| Add skills | Domain-specific capabilities (optional) | `.claude/skills/` |
+
+### 4. Run
+
+```bash
+claude
+```
+
+The orchestrator boots, reads memory, checks the tracker, and is ready.
+
+---
+
+## Domain Examples
+
+<details>
+<summary><strong>Software Engineering Team</strong></summary>
+
+```yaml
+# roles/index.yaml
+divisions:
+  engineering: { enabled: true }
+  testing: { enabled: true }
+  product: { enabled: true }
+  project-management: { enabled: true }
+```
+
+```markdown
+<!-- memory/user_team.md -->
+---
+name: user_team
+description: Backend-heavy team, Go + PostgreSQL, microservices architecture
+type: user
+---
+Full-stack team of 6. Primary stack: Go, PostgreSQL, gRPC, React.
+Monorepo. CI via GitHub Actions. Deploy to AWS ECS.
+```
+
+</details>
+
+<details>
+<summary><strong>Marketing Agency</strong></summary>
+
+```yaml
+# roles/index.yaml
+divisions:
+  marketing: { enabled: true }
+  design: { enabled: true }
+  sales: { enabled: true }
+  paid-media: { enabled: true }
+```
+
+</details>
+
+<details>
+<summary><strong>Solo Founder</strong></summary>
+
+```yaml
+# roles/index.yaml
+divisions:
+  engineering: { enabled: true, roles: [software-architect, senior-dev] }
+  product: { enabled: true, roles: [sprint-prioritizer] }
+  marketing: { enabled: true, roles: [growth-hacker] }
+  design: { enabled: true, roles: [ui-designer] }
+```
+
+</details>
+
+---
+
+## Directory Structure
+
+```
+aigod/
+├── CLAUDE.md                      # Master orchestrator brain
+├── CUSTOMIZE.md                   # Your setup guide
+├── package.json
+│
+├── .claude/
+│   ├── commands/                  # Custom slash commands
+│   └── skills/
+│       ├── excalidraw/            # Diagramming
+│       ├── mirofish/              # Predictive simulation
+│       └── impeccable/            # Frontend constraint layer
+│
+├── roles/
+│   ├── index.yaml                 # Routing config
+│   ├── TEMPLATE.md                # Create your own roles
+│   ├── engineering/               # 23 roles
+│   ├── design/                    # 8 roles
+│   ├── marketing/                 # 28+ roles
+│   ├── sales/                     # 8 roles
+│   ├── product/                   # 5 roles
+│   ├── project-management/        # 6 roles
+│   ├── testing/                   # 8 roles
+│   ├── support/                   # 6 roles
+│   └── specialized/               # 27 roles
+│
+├── evals/
+│   ├── promptfooconfig.yaml       # Global eval config
+│   └── assertions/                # quality, safety, domain
+│
+├── memory/                        # Persistent cross-session knowledge
+├── tracker/                       # Single source of truth
+├── docs/                          # Architecture + your domain specs
+└── scripts/                       # Setup automation
+```
+
+---
+
+## How It Learns
+
+```mermaid
+flowchart LR
+    A[User corrects agent] --> B[Agent saves feedback memory]
+    B --> C[Feedback becomes protocol]
+    C --> D[Protocol loaded on future sessions]
+    D --> E[Mistake never repeated]
+
+    style A fill:#161b22,stroke:#f78166,color:#c9d1d9
+    style B fill:#161b22,stroke:#58a6ff,color:#c9d1d9
+    style C fill:#161b22,stroke:#bc8cff,color:#c9d1d9
+    style D fill:#161b22,stroke:#3fb950,color:#c9d1d9
+    style E fill:#161b22,stroke:#3fb950,color:#c9d1d9
+```
+
+**Example:**
+1. You say: *"Don't mock the database in these tests — we got burned last quarter"*
+2. aigod saves a feedback memory with the rule AND the reason
+3. Next session, it loads that memory and applies the rule
+4. It never suggests mocking the database again
+
+---
+
+## Eval Cost Breakdown
+
+| What | Model | Cost | When |
+|------|-------|------|------|
+| Deterministic checks | None (regex, contains) | **$0.00** | Every output |
+| LLM-graded rubrics | claude-haiku-4-5 | **~$0.001** | Non-trivial outputs |
+| Your main agent | claude-sonnet/opus | Your plan | Task execution |
+
+The grader doesn't need to be smart — it just evaluates against a rubric. Haiku handles this at 1/60th the cost of Opus.
 
 ---
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md). We welcome:
+
+- New specialist roles
+- Custom skills
+- Eval assertion sets
+- Domain configuration examples
+- Bug fixes and improvements
 
 ---
 
@@ -321,4 +538,7 @@ MIT — see [LICENSE](LICENSE).
 
 ---
 
-Built for the age of AI agents. Clone it. Make it yours.
+<p align="center">
+  <strong>Built for the age of AI agents.</strong><br>
+  <sub>Clone it. Feed it your specs. Watch it work.</sub>
+</p>
