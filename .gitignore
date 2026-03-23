@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# API keys and secrets
+*.key
+*.pem
+credentials.json
+secrets.yaml
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# promptfoo output
+.promptfoo/
+output/
+*.cache
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+dist/
+build/
+
+# Docker volumes
+data/
+
+# MiroFish service data
+mirofish-data/
+
+# User-specific memory (keep structure, ignore personal content)
+# Uncomment the line below if you want to keep memory private
+# memory/*.md
+# !memory/MEMORY.md
+
+# Tracker state (project-specific, not framework)
+# Uncomment to keep tracker private
+# tracker/*.md

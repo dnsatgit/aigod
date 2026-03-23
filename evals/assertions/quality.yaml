@@ -1,0 +1,19 @@
+# Quality Assertions
+# Reusable assertion set for general output quality.
+# Import in promptfooconfig.yaml via: file://assertions/quality.yaml
+
+tests:
+  - description: "Clear and concise"
+    assert:
+      - type: llm-rubric
+        value: "The response is clear, well-structured, and free of unnecessary verbosity. It communicates its point efficiently."
+
+  - description: "Technically accurate"
+    assert:
+      - type: llm-rubric
+        value: "Any technical claims, code snippets, or architectural suggestions are correct and follow established best practices."
+
+  - description: "No AI slop"
+    assert:
+      - type: llm-rubric
+        value: "The response does not contain generic AI filler phrases like 'Certainly!', 'Great question!', 'I'd be happy to help!', 'Let me know if you need anything else!', or unnecessary caveats and disclaimers."

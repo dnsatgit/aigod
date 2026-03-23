@@ -1,0 +1,55 @@
+# aigod Role Routing Index
+# Enable/disable divisions and individual roles for your domain.
+# The orchestrator uses this index to determine which roles are available.
+
+# Set to true to enable all roles in a division, or list specific roles.
+divisions:
+
+  engineering:
+    enabled: true
+    # roles: [software-architect, senior-dev, ai-engineer, devops, sre, ...]
+
+  design:
+    enabled: true
+    # roles: [ui-designer, ux-researcher, brand-guardian, ...]
+
+  marketing:
+    enabled: false
+    # roles: [growth-hacker, seo-strategist, content-creator, ...]
+
+  sales:
+    enabled: false
+    # roles: [outbound-strategist, deal-strategist, sales-engineer, ...]
+
+  product:
+    enabled: true
+    # roles: [sprint-prioritizer, feedback-synthesizer, product-manager, ...]
+
+  project-management:
+    enabled: true
+    # roles: [studio-producer, project-shepherd, jira-steward, ...]
+
+  testing:
+    enabled: true
+    # roles: [evidence-collector, reality-checker, api-tester, ...]
+
+  support:
+    enabled: false
+    # roles: [analytics-reporter, finance-tracker, legal-compliance, ...]
+
+  specialized:
+    enabled: false
+    # roles: [mcp-builder, document-generator, workflow-architect, ...]
+
+# Routing hints: keywords that map to divisions
+# The orchestrator uses these for fast classification before loading a role.
+routing:
+  engineering: [code, build, deploy, debug, refactor, api, database, infrastructure, ci, cd, docker, kubernetes]
+  design: [design, ui, ux, wireframe, mockup, prototype, brand, visual, layout, typography, color]
+  marketing: [campaign, seo, content, social, email, growth, analytics, funnel, conversion, ads]
+  sales: [lead, prospect, pipeline, deal, proposal, outbound, crm, demo, close]
+  product: [roadmap, sprint, backlog, feature, user story, prioritize, feedback, metric]
+  project-management: [timeline, milestone, blocker, status, standup, retro, jira, ticket]
+  testing: [test, qa, bug, regression, coverage, e2e, integration, unit, performance]
+  support: [report, compliance, legal, finance, audit, documentation]
+  specialized: [mcp, workflow, automation, integration, migration]

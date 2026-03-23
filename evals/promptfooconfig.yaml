@@ -1,0 +1,80 @@
+# aigod Eval Configuration
+# Global evaluation config — runs on all agent outputs.
+# Uses claude-haiku-4-5 as the grader model for cost efficiency.
+#
+# Run: npm run eval
+# View: npm run eval:view
+#
+# Docs: https://github.com/promptfoo/promptfoo
+
+description: "aigod quality gates"
+
+# Default provider for LLM-graded assertions (the grader, not the agent)
+defaultTest:
+  options:
+    provider:
+      id: anthropic:messages:claude-haiku-4-5-20251001
+      config:
+        temperature: 0
+        max_tokens: 512
+
+# Providers (the models being evaluated — your main agent model)
+providers:
+  - id: anthropic:messages:claude-sonnet-4-6
+    label: "aigod-agent"
+
+# Assertion sets — imported from assertions/ directory
+# Uncomment and configure as needed for your domain.
+
+# Example prompt + assertion configuration:
+prompts:
+  - id: "file://prompts/default.txt"
+    label: "default-orchestrator"
+
+tests:
+  # --- Tier 1: Deterministic (free) ---
+
+  - description: "Output is not empty"
+    assert:
+      - type: javascript
+        value: "output.length > 0"
+
+  - description: "No hallucinated URLs"
+    assert:
+      - type: not-contains
+        value: "example.com"
+      - type: not-contains
+        value: "placeholder.com"
+
+  - description: "No leaked system prompts"
+    assert:
+      - type: not-contains
+        value: "You are aigod"
+      - type: not-contains
+        value: "CLAUDE.md"
+
+  # --- Tier 2: LLM-Graded (haiku, ~$0.001/eval) ---
+
+  - description: "Output is actionable, not vague"
+    assert:
+      - type: llm-rubric
+        value: "The response provides specific, actionable guidance rather than generic or vague advice. It includes concrete next steps, code, or decisions — not just descriptions of what could be done."
+
+  - description: "Output matches the requested format"
+    assert:
+      - type: llm-rubric
+        value: "The response format matches what was requested. If code was asked for, code is provided. If a plan was asked for, a structured plan is provided. The response does not pad with unnecessary preamble or caveats."
+
+  - description: "Output is appropriately scoped"
+    assert:
+      - type: llm-rubric
+        value: "The response addresses exactly what was asked — no more, no less. It does not over-engineer, add unrequested features, or go on tangents."
+
+# Import additional assertion sets
+# assertionSets:
+#   - file://assertions/quality.yaml
+#   - file://assertions/safety.yaml
+#   - file://assertions/domain.yaml
+
+# Composite scoring
+# quality * 0.6 + relevance * 0.3 + cost_efficiency * 0.1

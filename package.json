@@ -1,0 +1,22 @@
+{
+  "name": "aigod",
+  "version": "0.1.0",
+  "description": "A cloneable master agent framework. Feed it your domain specs — get a production-ready AI orchestrator.",
+  "keywords": [
+    "ai-agent",
+    "claude",
+    "orchestrator",
+    "multi-agent",
+    "promptfoo",
+    "agent-framework"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "eval": "npx promptfoo eval -c evals/promptfooconfig.yaml",
+    "eval:view": "npx promptfoo view",
+    "setup": "bash scripts/setup.sh"
+  },
+  "dependencies": {
+    "promptfoo": "^0.100.0"
+  }
+}

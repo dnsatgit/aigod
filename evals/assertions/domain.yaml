@@ -1,0 +1,22 @@
+# Domain-Specific Assertions
+# Customize this file for your project's specific quality criteria.
+# Import in promptfooconfig.yaml via: file://assertions/domain.yaml
+
+# EXAMPLE: Uncomment and modify for your domain.
+# These are examples — replace with assertions relevant to YOUR project.
+
+# tests:
+#   - description: "Uses company terminology correctly"
+#     assert:
+#       - type: llm-rubric
+#         value: "The response uses the correct internal terminology as defined in the company glossary. For example, 'workspace' not 'project', 'member' not 'user'."
+#
+#   - description: "Follows internal API conventions"
+#     assert:
+#       - type: llm-rubric
+#         value: "Any API suggestions follow the company's REST conventions: snake_case fields, ISO 8601 dates, envelope response format with { data, meta, errors }."
+#
+#   - description: "Respects data privacy requirements"
+#     assert:
+#       - type: llm-rubric
+#         value: "The response does not suggest logging, storing, or transmitting PII without explicit encryption or anonymization. GDPR and CCPA compliance is assumed."
