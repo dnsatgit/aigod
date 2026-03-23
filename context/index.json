@@ -1,0 +1,145 @@
+{
+  "$schema": "./schema.json",
+  "version": "0.1.0",
+  "description": "L0 master context index — always loaded at session start. Structured routing for all aigod context files.",
+  "lastUpdated": "2026-03-23",
+
+  "memory": {
+    "description": "Persistent cross-session knowledge files",
+    "basePath": "memory/",
+    "entries": [
+      {
+        "file": "protocols.md",
+        "type": "project",
+        "description": "Established operational rules and lessons learned that guide agent behavior",
+        "tags": ["rules", "lessons", "behavior", "constraints"],
+        "tier": "L1",
+        "tokenEstimate": 400,
+        "lastAccessed": null,
+        "priority": "high"
+      }
+    ],
+    "_template": {
+      "file": "example.md",
+      "type": "user | feedback | project | reference",
+      "description": "One-line description used for L0/L1 relevance matching",
+      "tags": ["keyword1", "keyword2"],
+      "tier": "L1",
+      "tokenEstimate": 0,
+      "lastAccessed": null,
+      "priority": "normal | high | low"
+    }
+  },
+
+  "roles": {
+    "description": "Specialist personas loaded on task classification",
+    "basePath": "roles/",
+    "routing": {
+      "engineering": {
+        "enabled": true,
+        "keywords": ["code", "build", "deploy", "debug", "refactor", "api", "database", "infrastructure", "ci", "cd", "docker", "kubernetes", "backend", "frontend", "fullstack"],
+        "roles": [
+          {
+            "file": "engineering/software-architect.md",
+            "name": "Software Architect",
+            "description": "Designs system architecture, evaluates trade-offs, and makes structural decisions",
+            "triggers": ["architecture", "system design", "trade-off", "scalability", "structure"],
+            "tokenEstimate": 800
+          }
+        ]
+      },
+      "design": {
+        "enabled": true,
+        "keywords": ["design", "ui", "ux", "wireframe", "mockup", "prototype", "brand", "visual", "layout", "typography", "color"],
+        "roles": []
+      },
+      "marketing": {
+        "enabled": false,
+        "keywords": ["campaign", "seo", "content", "social", "email", "growth", "analytics", "funnel", "conversion", "ads"],
+        "roles": []
+      },
+      "sales": {
+        "enabled": false,
+        "keywords": ["lead", "prospect", "pipeline", "deal", "proposal", "outbound", "crm", "demo", "close"],
+        "roles": []
+      },
+      "product": {
+        "enabled": true,
+        "keywords": ["roadmap", "sprint", "backlog", "feature", "user story", "prioritize", "feedback", "metric"],
+        "roles": []
+      },
+      "project-management": {
+        "enabled": true,
+        "keywords": ["timeline", "milestone", "blocker", "status", "standup", "retro", "jira", "ticket"],
+        "roles": []
+      },
+      "testing": {
+        "enabled": true,
+        "keywords": ["test", "qa", "bug", "regression", "coverage", "e2e", "integration", "unit", "performance"],
+        "roles": []
+      },
+      "support": {
+        "enabled": false,
+        "keywords": ["report", "compliance", "legal", "finance", "audit", "documentation"],
+        "roles": []
+      },
+      "specialized": {
+        "enabled": false,
+        "keywords": ["mcp", "workflow", "automation", "integration", "migration"],
+        "roles": []
+      }
+    }
+  },
+
+  "skills": {
+    "description": "Stateless capabilities invoked on demand",
+    "basePath": ".claude/skills/",
+    "entries": [
+      {
+        "name": "excalidraw",
+        "file": "excalidraw/SKILL.md",
+        "description": "Generates Excalidraw JSON diagrams for visualizing architectures, workflows, and concepts",
+        "triggers": ["visualize", "diagram", "architecture", "flow", "chart", "map", "sketch"],
+        "constraint": false,
+        "tokenEstimate": 600
+      },
+      {
+        "name": "mirofish",
+        "file": "mirofish/SKILL.md",
+        "description": "Multi-agent simulation engine for predictive analytics, scenario modeling, and strategic foresight",
+        "triggers": ["predict", "simulate", "scenario", "forecast", "what if", "model", "projection"],
+        "constraint": false,
+        "tokenEstimate": 500
+      },
+      {
+        "name": "impeccable",
+        "file": "impeccable/SKILL.md",
+        "description": "Mandatory constraint layer enforcing 21 frontend design standards on all UI output",
+        "triggers": ["auto:frontend"],
+        "constraint": true,
+        "tokenEstimate": 1200
+      }
+    ]
+  },
+
+  "domain": {
+    "description": "User-provided domain specs and constraints",
+    "basePath": "docs/domain/",
+    "entries": []
+  },
+
+  "tracker": {
+    "file": "tracker/tracker.md",
+    "description": "Single source of truth for project state — current phase, active tasks, blockers, decision log",
+    "tier": "L1",
+    "tokenEstimate": 300
+  },
+
+  "session": {
+    "description": "Session state for context compression tracking",
+    "basePath": "context/sessions/",
+    "current": null,
+    "compressionThreshold": 50000,
+    "compressionStrategy": "summarize-and-archive"
+  }
+}

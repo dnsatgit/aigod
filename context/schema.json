@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "aigod Context Index",
+  "description": "Schema for the L0 master context index. Defines the structure for all routable context in the aigod framework.",
+  "type": "object",
+  "required": ["version", "memory", "roles", "skills", "tracker"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version following semver"
+    },
+    "description": {
+      "type": "string"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO date of last index update"
+    },
+    "memory": {
+      "type": "object",
+      "required": ["basePath", "entries"],
+      "properties": {
+        "description": { "type": "string" },
+        "basePath": { "type": "string" },
+        "entries": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/memoryEntry" }
+        }
+      }
+    },
+    "roles": {
+      "type": "object",
+      "required": ["basePath", "routing"],
+      "properties": {
+        "description": { "type": "string" },
+        "basePath": { "type": "string" },
+        "routing": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/division" }
+        }
+      }
+    },
+    "skills": {
+      "type": "object",
+      "required": ["basePath", "entries"],
+      "properties": {
+        "description": { "type": "string" },
+        "basePath": { "type": "string" },
+        "entries": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/skillEntry" }
+        }
+      }
+    },
+    "domain": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "basePath": { "type": "string" },
+        "entries": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/domainEntry" }
+        }
+      }
+    },
+    "tracker": {
+      "type": "object",
+      "required": ["file"],
+      "properties": {
+        "file": { "type": "string" },
+        "description": { "type": "string" },
+        "tier": { "enum": ["L0", "L1", "L2"] },
+        "tokenEstimate": { "type": "integer" }
+      }
+    },
+    "session": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "basePath": { "type": "string" },
+        "current": { "type": ["string", "null"] },
+        "compressionThreshold": {
+          "type": "integer",
+          "description": "Token count that triggers automatic session compression"
+        },
+        "compressionStrategy": {
+          "enum": ["summarize-and-archive", "extract-and-release", "rolling-window"]
+        }
+      }
+    }
+  },
+  "$defs": {
+    "memoryEntry": {
+      "type": "object",
+      "required": ["file", "type", "description"],
+      "properties": {
+        "file": { "type": "string", "description": "Filename relative to basePath" },
+        "type": { "enum": ["user", "feedback", "project", "reference"] },
+        "description": { "type": "string", "description": "One-line description for L0/L1 relevance matching" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "tier": { "enum": ["L0", "L1", "L2"], "default": "L1" },
+        "tokenEstimate": { "type": "integer", "description": "Approximate token count of full file" },
+        "lastAccessed": { "type": ["string", "null"], "format": "date" },
+        "priority": { "enum": ["low", "normal", "high"], "default": "normal" }
+      }
+    },
+    "division": {
+      "type": "object",
+      "required": ["enabled", "keywords"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "keywords": { "type": "array", "items": { "type": "string" } },
+        "roles": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/roleEntry" }
+        }
+      }
+    },
+    "roleEntry": {
+      "type": "object",
+      "required": ["file", "name", "description"],
+      "properties": {
+        "file": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "triggers": { "type": "array", "items": { "type": "string" } },
+        "tokenEstimate": { "type": "integer" }
+      }
+    },
+    "skillEntry": {
+      "type": "object",
+      "required": ["name", "file", "description", "triggers"],
+      "properties": {
+        "name": { "type": "string" },
+        "file": { "type": "string" },
+        "description": { "type": "string" },
+        "triggers": { "type": "array", "items": { "type": "string" } },
+        "constraint": { "type": "boolean", "default": false, "description": "If true, auto-loaded when domain matches (not trigger-based)" },
+        "tokenEstimate": { "type": "integer" }
+      }
+    },
+    "domainEntry": {
+      "type": "object",
+      "required": ["file", "description"],
+      "properties": {
+        "file": { "type": "string" },
+        "description": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "tokenEstimate": { "type": "integer" }
+      }
+    }
+  }
+}

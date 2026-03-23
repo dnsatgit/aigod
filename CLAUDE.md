@@ -12,15 +12,22 @@ Never load full context when a summary will do. Always load the minimum tier nee
 
 | Tier | What Loads | When | Cost |
 |------|-----------|------|------|
-| **L0 — Index** | File names, descriptions, routing keywords | Every session start | Minimal |
-| **L1 — Summary** | Section headers, key decisions, current status | When domain is classified | Low |
-| **L2 — Full** | Complete file contents, detailed specs | Only when actively working on that specific item | Full |
+| **L0 — Index** | `context/index.json` — file names, descriptions, routing keywords, token estimates | Every session start | Minimal (~300 tokens) |
+| **L1 — Summary** | Section headers, key decisions, frontmatter metadata | When domain is classified | Low (~500-1000 tokens) |
+| **L2 — Full** | Complete file contents, detailed specs | Only when actively working on that specific item | Full (varies) |
 
-**Examples:**
-- `memory/MEMORY.md` = L0 (index of all memories — always loaded)
-- Reading a memory file's frontmatter only = L1 (check if relevant before loading body)
-- Reading a full role definition = L2 (only after routing confirms this role is needed)
-- `roles/index.yaml` = L0/L1 (routing keywords, never load all 120+ role files)
+**The master index is `context/index.json`** — a structured JSON file (not markdown, not vector DB) that contains:
+- All memory entries with type, tags, description, token estimates, and priority
+- All role divisions with keywords, enabled state, and role metadata
+- All skills with triggers, constraint flags, and token estimates
+- Tracker and session state references
+
+**L0→L1→L2 lookup flow:**
+1. Read `context/index.json` → know what exists and where (L0)
+2. Match task keywords against `roles.routing[division].keywords` → identify division (L0)
+3. Match against `roles.routing[division].roles[].triggers` → identify specific role (L1)
+4. Load the actual role `.md` file → full context for execution (L2)
+5. Check `memory.entries[].tags` for relevance → load only matching memory files (L1→L2)
 
 ### Session Compression
 
@@ -49,10 +56,10 @@ When making decisions based on loaded context, be transparent:
 
 Every session begins with:
 
-1. Read `memory/MEMORY.md` — load L0 context index
+1. Read `context/index.json` — load L0 master index (structured routing for everything)
 2. Read `tracker/tracker.md` — load L1 project state
-3. Scan memory descriptions — identify relevant L1 memories (don't load all to L2)
-4. Surface any stuck or blocked items
+3. Scan `index.json → memory.entries[]` — identify relevant memories by tags/description (don't load all to L2)
+4. Surface any stuck or blocked items from tracker
 5. Greet the user with current status
 
 ## Core Behavior
@@ -62,7 +69,7 @@ Every session begins with:
 When you receive a task:
 
 1. **Classify** the domain (engineering, design, marketing, product, etc.)
-2. **Route** to the appropriate role from `roles/index.yaml` (L0 routing)
+2. **Route** to the appropriate role via `context/index.json → roles.routing` (L0 routing)
 3. **Load** the role definition (L2 — only the matched role) and relevant skills
 4. **Apply** constraint layers (e.g., impeccable for frontend work)
 5. **Execute** with the sub-agent persona
@@ -72,7 +79,9 @@ When you receive a task:
 
 ### Role Selection
 
-Consult `roles/index.yaml` for the routing index. Load only the specific role `.md` file needed — never load all roles into context. This is an L0→L2 jump: routing keywords (L0) determine which single role file gets full-loaded (L2).
+Consult `context/index.json → roles.routing` for the routing index. Load only the specific role `.md` file needed — never load all roles into context. This is an L0→L2 jump: routing keywords (L0) determine which single role file gets full-loaded (L2).
+
+> **Note:** `roles/index.yaml` is kept as a human-friendly config file for users to edit. The orchestrator reads from `context/index.json` which is the structured equivalent. Keep them in sync.
 
 When the task spans multiple domains:
 - Identify the **primary** domain for the lead role
@@ -148,17 +157,17 @@ If a task requires a capability that doesn't exist as a skill:
 ## Memory Management
 
 ### Reading Memory (Tiered)
-- **L0:** Always read `memory/MEMORY.md` at session start (index only)
-- **L1:** Scan memory file descriptions to identify which are relevant to the current task
+- **L0:** Read `context/index.json → memory.entries[]` — descriptions, tags, priorities (already loaded at session start)
+- **L1:** For relevant entries, check frontmatter of the `.md` file to confirm relevance
 - **L2:** Read full memory file content only when actively needed for the current action
-- Never bulk-load all memory files — the index exists so you don't have to
+- Never bulk-load all memory files — the JSON index exists so you don't have to
 
 ### Writing Memory
 - Save user preferences, feedback, project context, and external references
 - Follow the memory format: frontmatter with name, description, type + body content
-- Write **good descriptions** in frontmatter — these are the L0/L1 layer that determines if L2 loading is needed
-- Update `MEMORY.md` index when adding new memory files
-- Never duplicate — update existing memories when possible
+- **Update `context/index.json`** — add an entry to `memory.entries[]` with file, type, description, tags, tokenEstimate, and priority
+- Write **good descriptions and tags** — these are the L0 layer that determines if L2 loading is needed
+- Never duplicate — update existing entries when possible
 - After saving, release the full content from active context (it's persisted now)
 
 ### Memory Types

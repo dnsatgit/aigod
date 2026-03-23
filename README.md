@@ -175,21 +175,68 @@ aigod is built on the best open-source tools available — not reinventing wheel
 
 <br>
 
-Based on [OpenViking](https://github.com/volcengine/OpenViking) — a context database designed specifically for AI agents. Instead of dumping everything into context and hoping for the best, aigod uses a **three-tier loading strategy** that treats context like a file system.
+Based on [OpenViking](https://github.com/volcengine/OpenViking) — a context database designed specifically for AI agents. Instead of dumping everything into context and hoping for the best, aigod uses a **JSON-indexed, three-tier loading strategy** that treats context like a file system — not a vector database.
 
 **The Problem It Solves:**
 - Sessions bloat with irrelevant context → slower responses, higher costs
 - Memory scattered across files with no retrieval strategy → agent loads everything or nothing
+- Traditional RAG uses vector embeddings that require external services and lack transparency
 - Long conversations lose early context → quality degrades over time
 - No visibility into what context informed a decision → debugging is guesswork
 
-**Three-Tier Context Loading (L0/L1/L2):**
+**The Core: `context/index.json`**
+
+A single structured JSON file that replaces markdown indexes, YAML configs, and vector databases. It contains:
+
+```json
+{
+  "memory": {
+    "entries": [
+      {
+        "file": "protocols.md",
+        "type": "project",
+        "description": "Operational rules and lessons learned",
+        "tags": ["rules", "lessons", "behavior"],
+        "tokenEstimate": 400,
+        "priority": "high"
+      }
+    ]
+  },
+  "roles": {
+    "routing": {
+      "engineering": {
+        "enabled": true,
+        "keywords": ["code", "build", "deploy", "debug"],
+        "roles": [{ "file": "engineering/software-architect.md", "triggers": ["architecture", "system design"] }]
+      }
+    }
+  },
+  "skills": {
+    "entries": [
+      { "name": "excalidraw", "triggers": ["visualize", "diagram"], "constraint": false },
+      { "name": "impeccable", "triggers": ["auto:frontend"], "constraint": true }
+    ]
+  }
+}
+```
+
+**Why JSON instead of vector DB?**
+
+| | Vector DB (Pinecone, Chroma) | JSON Index (aigod) |
+|---|---|---|
+| Dependencies | External service required | Zero — just a file |
+| Transparency | Black-box retrieval | Human-readable, git-diffable |
+| Cost | Embedding API calls | Free |
+| Portability | Tied to a service | Lives in your repo |
+| Versioning | Complex | `git diff context/index.json` |
+
+**Three-Tier Loading (L0/L1/L2):**
 
 | Tier | What Loads | When | Token Cost |
 |------|-----------|------|------------|
-| **L0 — Index** | File names, descriptions, routing keywords | Every session start | ~200 tokens |
-| **L1 — Summary** | Section headers, key decisions, metadata/frontmatter | When domain is classified | ~500-1000 tokens |
-| **L2 — Full** | Complete file contents, detailed specs | Only when actively needed | Full file size |
+| **L0 — Index** | `context/index.json` — descriptions, keywords, tags, token estimates | Every session start | ~300 tokens |
+| **L1 — Summary** | File frontmatter, section headers, metadata | When domain is classified | ~500-1000 tokens |
+| **L2 — Full** | Complete file contents | Only when actively working on that item | Full file size |
 
 **How This Saves Credits:**
 
@@ -198,9 +245,9 @@ Without tiered loading:
   Session start → load ALL memories + ALL roles + tracker + protocols
   = 50,000+ tokens consumed before any work begins
 
-With tiered loading:
-  Session start → load MEMORY.md index (L0) + tracker summary (L1)
-  = ~500 tokens → classify task → load ONE role (L2) + relevant memories (L2)
+With JSON index:
+  Session start → load context/index.json (L0, ~300 tokens)
+  → classify task → match keywords → load ONE role (L2) + relevant memories (L2)
   = ~3,000 tokens total, loaded incrementally
 ```
 
@@ -208,7 +255,7 @@ With tiered loading:
 As conversations grow, the system automatically:
 1. Summarizes completed work (replace verbose tool outputs with structured summaries)
 2. Archives resolved decisions (move to tracker log, release from active context)
-3. Extracts persistent learnings (save to memory files, remove from conversation)
+3. Extracts persistent learnings (save to memory files, update `index.json`, remove from conversation)
 4. References instead of repeating (point to files/commits, don't re-quote them)
 
 **Observable Context:**
@@ -576,6 +623,11 @@ aigod/
 ├── CUSTOMIZE.md                   # Your setup guide
 ├── package.json
 │
+├── context/
+│   ├── index.json                 # L0 master index (THE routing brain)
+│   ├── schema.json                # JSON schema for index validation
+│   └── sessions/                  # Session state snapshots
+│
 ├── .claude/
 │   ├── commands/                  # Custom slash commands
 │   └── skills/
@@ -584,7 +636,7 @@ aigod/
 │       └── impeccable/            # Frontend constraint layer
 │
 ├── roles/
-│   ├── index.yaml                 # Routing config
+│   ├── index.yaml                 # Human-friendly routing config
 │   ├── TEMPLATE.md                # Create your own roles
 │   ├── engineering/               # 23 roles
 │   ├── design/                    # 8 roles
@@ -600,11 +652,14 @@ aigod/
 │   ├── promptfooconfig.yaml       # Global eval config
 │   └── assertions/                # quality, safety, domain
 │
-├── memory/                        # Persistent cross-session knowledge
+├── memory/                        # Persistent cross-session knowledge (.md files)
 ├── tracker/                       # Single source of truth
 ├── docs/                          # Architecture + your domain specs
 └── scripts/                       # Setup automation
 ```
+
+> **Why `context/index.json` instead of vector DB or markdown index?**
+> JSON is structured (no LLM needed to parse), git-trackable (diffable), human-editable, zero dependencies (no Pinecone/Chroma/Weaviate), and naturally hierarchical (maps to L0/L1/L2 tiers). Content stays as markdown for readability. The index is JSON for routing.
 
 ---
 
