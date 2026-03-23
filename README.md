@@ -42,16 +42,25 @@ Your Domain Specs + aigod Framework Files = Consistent, Context-Aware Claude Cod
 
 ---
 
-## When Should You Use aigod?
+## Who Is This For?
 
-| You should use aigod if... | You probably don't need aigod if... |
-|---------------------------|-------------------------------------|
-| You use Claude Code daily for real work | You're exploring Claude for the first time |
-| You're tired of re-explaining your codebase every session | Your projects are small one-off scripts |
-| Your team has conventions, standards, and processes | You don't care about output consistency |
-| You want quality gates on AI output before it ships | You enjoy reviewing AI slop manually |
-| You need different specialist behaviors for different tasks | One generic assistant is fine for everything |
-| You want the agent to learn and improve over time | You like copy-pasting system prompts |
+**aigod is ideal when you:**
+
+- Want a **well-thought-out structure** for Claude Code projects instead of ad-hoc prompting
+- Value **prompt engineering best practices** and want a framework that codifies them
+- Are willing to **build roles and skills yourself** (or import from [agency-agents](https://github.com/msitarzewski/agency-agents)) — this is a scaffold, not a finished product
+- Need a **starting point for context management** in long Claude sessions that burn through credits
+- Use Claude Code **daily for real work** and are tired of re-explaining your codebase every session
+- Want **eval gating** on AI output via promptfoo before it ships
+- Appreciate **honest, non-hype documentation** — we tell you exactly what this does and doesn't do
+
+**You probably don't need aigod if:**
+
+- You're exploring Claude for the first time — start with vanilla Claude Code
+- Your projects are small one-off scripts — the overhead isn't worth it
+- You want a turnkey solution with everything pre-built — this is a framework, not an app
+- You don't care about output consistency across sessions
+- One generic assistant prompt is fine for everything you do
 
 ---
 
