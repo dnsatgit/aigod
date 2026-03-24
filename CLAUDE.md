@@ -52,15 +52,99 @@ When making decisions based on loaded context, be transparent:
 - If a memory or protocol influenced the approach, cite it
 - If context was insufficient, say so rather than guessing
 
+## Parameter Tuning Enforcement (Core Purpose)
+
+**This is the primary function of aigod.** The orchestrator exists to ensure every parameter in the system is deliberately tuned — never left at defaults. This applies on first clone AND on every subsequent modification.
+
+### Why This Matters
+
+Default parameters produce generic output. Tuned parameters produce domain-specific, high-quality output. The difference between "AI slop" and "useful work" is parameter tuning. aigod enforces this discipline automatically.
+
+### Tuning State
+
+Every configurable parameter group has a tuning state tracked in `context/index.json → tuning`:
+
+| State | Meaning |
+|-------|---------|
+| `untuned` | Still at framework defaults — **must be tuned before use** |
+| `tuned` | User has deliberately configured this parameter group |
+| `stale` | Was tuned but the underlying context has changed — **re-tuning recommended** |
+
+### What Gets Tuned
+
+| Parameter Group | Config File | What User Decides |
+|-----------------|-------------|-------------------|
+| **identity** | `memory/user_*.md` | Who they are, their expertise, communication preferences |
+| **domain** | `docs/domain/` | Industry, tech stack, terminology, constraints |
+| **roles** | `roles/index.yaml` | Which divisions to enable, which to disable |
+| **color_palette** | `.claude/skills/excalidraw/references/color-palette.md` | Brand colors, visual identity |
+| **eval_assertions** | `evals/assertions/domain.yaml` | Domain-specific quality criteria |
+| **constraints** | `docs/domain/constraints/` | What rules must always apply |
+| **tracker** | `tracker/tracker.md` | Current project phase, active work |
+| **protocols** | `memory/protocols.md` | Operational rules and anti-patterns |
+
+### Enforcement Rules
+
+**On every session start:**
+1. Read `context/index.json → tuning` (part of L0 load)
+2. If ANY parameter group is `untuned`:
+   - Surface it to the user immediately, before any other work
+   - Explain what it controls and why it matters
+   - Offer guided tuning: ask targeted questions to fill in values
+   - Do NOT proceed with tasks that depend on untuned parameters
+3. If ANY parameter group is `stale`:
+   - Mention it after status greeting (non-blocking, but visible)
+   - Suggest re-tuning when the user's current task touches that group
+
+**On every modification:**
+1. When the user changes a file that's tracked as a tuning parameter:
+   - Confirm the change aligns with their intent
+   - Update `tuning.groups[group].state` to `tuned`
+   - Update `tuning.groups[group].lastTuned` timestamp
+2. When the user adds new domain specs, roles, or constraints:
+   - Check if related parameter groups need re-tuning
+   - Mark affected groups as `stale` if the new content invalidates prior tuning
+
+**On first clone (all groups `untuned`):**
+1. Run the full onboarding flow (see `CUSTOMIZE.md`)
+2. Walk through each parameter group in priority order:
+   - `identity` → `domain` → `roles` → `eval_assertions` → `constraints` → `color_palette`
+3. For each group, ask focused questions — don't dump a config file on the user
+4. After all critical groups are tuned, mark them and proceed normally
+
+### Guided Tuning Prompts
+
+When a parameter group is `untuned`, use these prompts:
+
+**identity:**
+> "Before we start — who are you? What's your role, expertise level, and how do you prefer AI to communicate with you? (Technical depth, verbosity, confirm-before-act vs. autonomous)"
+
+**domain:**
+> "What domain does this project serve? What's the tech stack, industry terminology, and any hard constraints I should always respect?"
+
+**roles:**
+> "I have specialist roles across 12 divisions. Which domains are relevant to your work? I'll disable the rest to keep things lean."
+
+**eval_assertions:**
+> "What does 'quality' mean for your project? Give me 2-3 rules that every output should pass. Example: 'Never suggest deprecated APIs', 'Always include error handling', 'Follow our naming convention: camelCase'."
+
+**color_palette:**
+> "If you need diagrams or visual output — what are your brand colors? I'll update the palette so everything stays on-brand."
+
+**constraints:**
+> "Are there any hard rules that must NEVER be violated? Examples: 'Never commit to main directly', 'All API responses must include pagination', 'No inline styles in frontend code'."
+
 ## Session Start Protocol
 
 Every session begins with:
 
 1. Read `context/index.json` — load L0 master index (structured routing for everything)
-2. Read `tracker/tracker.md` — load L1 project state
-3. Scan `index.json → memory.entries[]` — identify relevant memories by tags/description (don't load all to L2)
-4. Surface any stuck or blocked items from tracker
-5. Greet the user with current status
+2. **Check `tuning` state** — surface any `untuned` groups immediately (BLOCKING)
+3. Read `tracker/tracker.md` — load L1 project state
+4. Scan `index.json → memory.entries[]` — identify relevant memories by tags/description (don't load all to L2)
+5. Surface any stuck or blocked items from tracker
+6. Note any `stale` tuning groups (NON-BLOCKING, but visible)
+7. Greet the user with current status
 
 ## Core Behavior
 

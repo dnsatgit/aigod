@@ -28,6 +28,27 @@ You've been copy-pasting system prompts. Writing the same instructions. Getting 
 
 aigod is a **structured prompt engineering framework** for Claude Code. It lives in your git repo as a set of markdown files, JSON configs, and eval templates that give Claude Code consistent behavior, domain awareness, and quality standards.
 
+### The Core Feature: Parameter Tuning Enforcement
+
+**This is what makes aigod "god".** The framework's primary purpose is ensuring every parameter in the system is deliberately tuned to your domain — never left at defaults. Default parameters produce generic output. Tuned parameters produce domain-specific, high-quality output.
+
+On first clone, aigod walks you through tuning in priority order:
+
+| Priority | Parameter Group | What You Configure |
+|----------|----------------|--------------------|
+| 1 | **Identity** | Who you are, expertise level, communication preferences |
+| 2 | **Domain** | Industry, tech stack, terminology, hard constraints |
+| 3 | **Roles** | Which specialist divisions to enable/disable |
+| 4 | **Eval Assertions** | Domain-specific quality criteria |
+| 5 | **Constraints** | Hard rules that must never be violated |
+| 6 | **Color Palette** | Brand colors for visual output |
+| 7 | **Tracker** | Current project phase and active work |
+| 8 | **Protocols** | Operational rules and anti-patterns |
+
+Every parameter group has a state: `untuned` → `tuned` → `stale`. The orchestrator **blocks work on untuned critical parameters** and **prompts re-tuning** when context changes make prior tuning stale. This isn't optional — it's the enforcement loop that separates "AI slop" from "useful work."
+
+### What Else It Does
+
 - **Routes tasks** to specialist role definitions via keyword matching in `context/index.json`
 - **Evaluates outputs** through promptfoo (deterministic checks + Haiku-graded rubrics)
 - **Remembers context** across sessions via file-based memory with structured frontmatter

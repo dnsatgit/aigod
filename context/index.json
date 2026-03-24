@@ -4,6 +4,76 @@
   "description": "L0 master context index — always loaded at session start. Structured routing for all aigod context files.",
   "lastUpdated": "2026-03-23",
 
+  "tuning": {
+    "description": "Parameter tuning state — aigod's core enforcement mechanism. All groups start untuned on fresh clone.",
+    "groups": {
+      "identity": {
+        "state": "untuned",
+        "description": "Who the user is, expertise level, communication preferences",
+        "configFiles": ["memory/user_preferences.md"],
+        "lastTuned": null,
+        "priority": 1,
+        "blocking": true
+      },
+      "domain": {
+        "state": "untuned",
+        "description": "Industry, tech stack, terminology, hard constraints",
+        "configFiles": ["docs/domain/"],
+        "lastTuned": null,
+        "priority": 2,
+        "blocking": true
+      },
+      "roles": {
+        "state": "untuned",
+        "description": "Which role divisions are enabled/disabled for this project",
+        "configFiles": ["roles/index.yaml"],
+        "lastTuned": null,
+        "priority": 3,
+        "blocking": false
+      },
+      "eval_assertions": {
+        "state": "untuned",
+        "description": "Domain-specific quality criteria for output evaluation",
+        "configFiles": ["evals/assertions/domain.yaml"],
+        "lastTuned": null,
+        "priority": 4,
+        "blocking": false
+      },
+      "constraints": {
+        "state": "untuned",
+        "description": "Hard rules that must never be violated",
+        "configFiles": ["docs/domain/constraints/"],
+        "lastTuned": null,
+        "priority": 5,
+        "blocking": false
+      },
+      "color_palette": {
+        "state": "untuned",
+        "description": "Brand colors and visual identity for diagram output",
+        "configFiles": [".claude/skills/excalidraw/references/color-palette.md"],
+        "lastTuned": null,
+        "priority": 6,
+        "blocking": false
+      },
+      "tracker": {
+        "state": "untuned",
+        "description": "Current project phase and active work context",
+        "configFiles": ["tracker/tracker.md"],
+        "lastTuned": null,
+        "priority": 7,
+        "blocking": false
+      },
+      "protocols": {
+        "state": "untuned",
+        "description": "Operational rules, anti-patterns, and learned behaviors",
+        "configFiles": ["memory/protocols.md"],
+        "lastTuned": null,
+        "priority": 8,
+        "blocking": false
+      }
+    }
+  },
+
   "memory": {
     "description": "Persistent cross-session knowledge files",
     "basePath": "memory/",
